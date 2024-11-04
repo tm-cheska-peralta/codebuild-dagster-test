@@ -83,10 +83,8 @@ codepipeline: ## Integrate AWS CodePipeline with Dagster project
 	git clone --depth=1 git@github.com:thinkingmachines/dwt-ci-template.git ci_temp
 	cp -R ci_temp/codepipeline/ci/${orchestrator} ci/
 	cp -R ci_temp/codepipeline/scripts/${orchestrator} scripts/
-	cp ci_temp/codepipeline/${cloud-platform}/${orchestrator}/appspec.yml appspec.yml
-	cp -R ci_temp/codepipeline/${cloud-platform}/terraform/modules/codedeploy terraform/modules/
-	cp -R ci_temp/codepipeline/${cloud-platform}/terraform/modules/codepipeline terraform/modules/
-	cp -R ci_temp/codepipeline/${cloud-platform}/terraform/modules/ssm_parameter terraform/modules/
+	cp -R ci_temp/codepipeline/${cloud-platform}/${orchestrator}/* .
+	cp -R ci_temp/codepipeline/${cloud-platform}/terraform/modules/* terraform/modules/
 ## Staging
 	cp ci_temp/codepipeline/${cloud-platform}/terraform/codepipeline.tf terraform/staging/codepipeline.tf
 	cp ci_temp/codepipeline/${cloud-platform}/terraform/ssm_parameter.tf terraform/staging/ssm_parameter.tf
