@@ -1,0 +1,39 @@
+version: 0.2
+env:
+  git-credential-helper: yes
+phases:
+  pre_build:
+    commands:
+      - aws --version
+      - echo Logging in to Amazon ECR....
+      - aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - echo "export ECR_REGION=${ECR_REGION}" >> scripts/env_vars.sh
+      - echo "export ECR_REGISTRY=${ECR_REGISTRY}" >> scripts/env_vars.sh
+  build:
+    commands:
+      - echo Building the dagster dagit docker image...
+      - docker build -t $REPO_NAME:dagit-latest -f ci/Dockerfile-dagit .
+      - docker tag $REPO_NAME:dagit-latest $ECR_REPO_URL:dagit-latest
+      - docker tag $REPO_NAME:dagit-latest $ECR_REPO_URL:dagit-$IMAGE_TAG
+      - echo Building the dagster pipelines docker image...
+      - docker build -t $REPO_NAME:pipelines-latest -f ci/Dockerfile-pipelines .
+      - docker tag $REPO_NAME:pipelines-latest $ECR_REPO_URL:pipelines-latest
+      - docker tag $REPO_NAME:pipelines-latest $ECR_REPO_URL:pipelines-$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Pushing dagster dagit docker image to AWS ECR...
+      - docker push $ECR_REPO_URL:dagit-latest
+      - docker push $ECR_REPO_URL:dagit-$IMAGE_TAG
+      - echo "export DAGIT_IMAGE_URL=\"${ECR_REPO_URL}:dagit-latest\"" >> scripts/env_vars.sh
+      - echo Pushing pipelines image to AWS ECR...
+      - docker push $ECR_REPO_URL:pipelines-latest
+      - docker push $ECR_REPO_URL:pipelines-$IMAGE_TAG
+      - echo "export PIPELINES_IMAGE_URL=\"${ECR_REPO_URL}:pipelines-latest\"" >> scripts/env_vars.sh
+artifacts:
+  files:
+    - appspec.yml
+    - scripts/**/*
+    - dagster/*
+    - dagster/src/**/*
+    - ci/**/*
