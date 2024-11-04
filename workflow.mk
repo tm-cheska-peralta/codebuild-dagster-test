@@ -54,7 +54,7 @@ gcp-terraform: ## Prepare a templatized setup for Terraform (GCP)
 	rm -rf terraform-temp
 
 aws-terraform: ## Prepare a templatized setup for Terraform (AWS)
-	git clone --depth=1 git@github.com:thinkingmachines/dwt-terraform-template.git terraform-temp
+	git clone -b feat/codebuild-ecr --single-branch --depth=1 git@github.com:thinkingmachines/dwt-terraform-template.git terraform-temp
 	mv terraform-temp/aws/terraform/ .
 	mv terraform-temp/aws/aws-policies/ .
 	mv terraform-temp/aws/terraform.mk .
@@ -80,7 +80,7 @@ cloudbuild: ## Integrate GCP Cloud Build with Airflow/Dagster project
 	rm -rf ci_temp
 
 codepipeline: ## Integrate AWS CodePipeline with Dagster project
-	git clone --depth=1 git@github.com:thinkingmachines/dwt-ci-template.git ci_temp
+	git clone -b feat/add-codebuild-support-to-codepipeline --single-branch --depth=1 git@github.com:thinkingmachines/dwt-ci-template.git ci_temp
 	cp -R ci_temp/codepipeline/ci/${orchestrator} ci/
 	cp -R ci_temp/codepipeline/scripts/${orchestrator} scripts/
 	cp -R ci_temp/codepipeline/${cloud-platform}/${orchestrator}/* .
