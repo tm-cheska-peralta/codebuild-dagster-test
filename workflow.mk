@@ -54,7 +54,7 @@ gcp-terraform: ## Prepare a templatized setup for Terraform (GCP)
 	rm -rf terraform-temp
 
 aws-terraform: ## Prepare a templatized setup for Terraform (AWS)
-	git clone -b feat/codebuild-ecr --single-branch --depth=1 git@github.com:thinkingmachines/dwt-terraform-template.git terraform-temp
+	git clone --depth=1 git@github.com:thinkingmachines/dwt-terraform-template.git terraform-temp
 	mv terraform-temp/aws/terraform/ .
 	mv terraform-temp/aws/aws-policies/ .
 	mv terraform-temp/aws/terraform.mk .
@@ -80,7 +80,7 @@ cloudbuild: ## Integrate GCP Cloud Build with Airflow/Dagster project
 	rm -rf ci_temp
 
 codepipeline: ## Integrate AWS CodePipeline with Dagster project
-	git clone -b feat/add-codebuild-support-to-codepipeline --single-branch --depth=1 git@github.com:thinkingmachines/dwt-ci-template.git ci_temp
+	git clone --depth=1 git@github.com:thinkingmachines/dwt-ci-template.git ci_temp
 	cp -R ci_temp/codepipeline/ci/${orchestrator} ci/
 	cp -R ci_temp/codepipeline/scripts/${orchestrator} scripts/
 	cp -R ci_temp/codepipeline/${cloud-platform}/${orchestrator}/* .
@@ -88,13 +88,17 @@ codepipeline: ## Integrate AWS CodePipeline with Dagster project
 ## Staging
 	cp ci_temp/codepipeline/${cloud-platform}/terraform/codepipeline.tf terraform/staging/codepipeline.tf
 	cp ci_temp/codepipeline/${cloud-platform}/terraform/ssm_parameter.tf terraform/staging/ssm_parameter.tf
+	cp ci_temp/codepipeline/${cloud-platform}/terraform/ecr.tf terraform/staging/ecr.tf
 	echo ${CI_TERRAFORM_TEMPLATE_HEADER} | cat - ci_temp/codepipeline/${cloud-platform}/terraform/variables.tf >> terraform/staging/variables.tf
 	echo ${CI_TERRAFORM_TEMPLATE_HEADER} | cat - ci_temp/codepipeline/${cloud-platform}/terraform/terraform.tfvars.sample >> terraform/staging/terraform.tfvars.sample
+	echo ${CI_TERRAFORM_TEMPLATE_HEADER} | cat - ci_temp/codepipeline/${cloud-platform}/terraform/locals.tf >> terraform/staging/locals.tf
 ## Production
 	cp ci_temp/codepipeline/${cloud-platform}/terraform/codepipeline.tf terraform/production/codepipeline.tf
 	cp ci_temp/codepipeline/${cloud-platform}/terraform/ssm_parameter.tf terraform/production/ssm_parameter.tf
+	cp ci_temp/codepipeline/${cloud-platform}/terraform/ecr.tf terraform/production/ecr.tf
 	echo ${CI_TERRAFORM_TEMPLATE_HEADER} | cat - ci_temp/codepipeline/${cloud-platform}/terraform/variables.tf >> terraform/production/variables.tf
 	echo ${CI_TERRAFORM_TEMPLATE_HEADER} | cat - ci_temp/codepipeline/${cloud-platform}/terraform/terraform.tfvars.sample >> terraform/production/terraform.tfvars.sample
+	echo ${CI_TERRAFORM_TEMPLATE_HEADER} | cat - ci_temp/codepipeline/${cloud-platform}/terraform/locals.tf >> terraform/production/locals.tf
 ## Continue
 	rm -rf ci_temp
 
